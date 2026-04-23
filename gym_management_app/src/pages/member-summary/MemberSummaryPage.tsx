@@ -51,14 +51,14 @@ export default function MemberSummaryPage() {
     if (!confirm('Cancel this membership?')) return;
     setBusy(true); setError(null);
     try {
-      await api.post('/check-ins', { memberId: id });
-      await load();
+        await api.post(`/memberships/${summary.active_membership.membership_id}/cancel`);
+        await load();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to cancel');
+        setError(err.response?.data?.error || 'Failed to cancel');
     } finally {
-      setBusy(false);
+        setBusy(false);
     }
-  };
+};
 
   const checkIn = async () => {
     setBusy(true); setError(null);

@@ -8,6 +8,7 @@ import checkInRoutes from './routes/checkIns.routes'
 import membershipsRoutes from './routes/memberships.routes'
 import { SERVER_HOSTNAME, SERVER_PORT } from './config/config'
 import * as logging from './config/logging'
+import { errorHandler } from './middleware/errorHandler'
 
 export const router = express()
 export let httpServer: ReturnType<typeof http.createServer>
@@ -32,14 +33,10 @@ export const Main = () => {
 
     logging.info('Define Controller Routing')
     router.use(routeNotFound)
+    router.use(errorHandler)
 
     logging.info('Start Server')
-    httpServer = http.createServer(router);
-    httpServer.listen(process.env.PORT || 3000, () => {
-        logging.info('Server is running on port' + SERVER_HOSTNAME + ':' + SERVER_PORT);
-    });
+    
+    return router
 }
 
-export const Shutdown = (callback: any) => httpServer && httpServer.close(callback);
-
-Main()

@@ -30,7 +30,7 @@ export async function assignMembership(input: {
         return membership;
     } catch (error: any) {
         if (error.code === '23505') {
-            throw new AppError(400, 'This member already has an active membership. Please cancel the existing one before assigning a new plan.');
+            throw new AppError(409, 'This member already has an active membership. Please cancel the existing one before assigning a new plan.');
         }
         throw error;
     }
@@ -41,7 +41,7 @@ export async function cancelMembership(membershipId: number) {
     return db.transaction(async (trx) => {
         const m = await trx('memberships').where({id: membershipId}).first();
         if (!m) throw new AppError(404, 'Membership not found');
-        if (m.status !== 'active') throw new AppError(400, 'Only active memberships can be canceled');
+        if (m.status !== 'active') throw new AppError(409, 'Only active memberships can be canceled');
 
         const today = new Date().toISOString().slice(0, 10);
         const [updated] = await trx('memberships').where({id: membershipId}).update({
