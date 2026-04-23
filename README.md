@@ -51,7 +51,7 @@ When it's ready you'll see: API listening on http://localhost:3000
 - 5. Setup and start the frontend
 
 Open another terminal tab and:
-`cd frontend`
+`cd gym_management_app`
 `npm install`
 `npm run dev`
 
