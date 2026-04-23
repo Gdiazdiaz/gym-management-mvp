@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run --pool=forks",
-    "dev": "nodemon --exec tsx src/server.ts",
+    "dev": "nodemon --exec tsx src/index.ts",
     "migrate": "knex migrate:latest --knexfile knexfile.ts",
     "migrate:make": "knex migrate:make --knexfile knexfile.ts",
     "seed": "knex seed:run --knexfile knexfile.ts",

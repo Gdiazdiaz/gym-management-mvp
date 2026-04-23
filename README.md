@@ -55,7 +55,7 @@ Open another terminal tab and:
 `npm install`
 `npm run dev`
 
-When ready you'll see: Local: http://localhost:5173/ 
+When ready you'll see: Local: http://localhost:5000/ 
 Open that URL in your browser. You're done
 
 ## Running the tests
