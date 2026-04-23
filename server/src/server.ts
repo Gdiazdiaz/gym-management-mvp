@@ -2,6 +2,7 @@ import http from 'http'
 import express from 'express'
 import { loggingHandler } from './middleware/loggingHandler'
 import { routeNotFound } from './middleware/notFound'
+import membersRoutes from './routes/members.routes'
 import { SERVER_HOSTNAME, SERVER_PORT } from './config/config'
 import * as logging from './config/logging'
 
@@ -29,6 +30,7 @@ export const Main = () => {
     httpServer.listen(process.env.PORT || 3000, () => {
         logging.info('Server is running on port' + SERVER_HOSTNAME + ':' + SERVER_PORT);
     });
+    router.use('/api/members', membersRoutes);
 
 }
 
