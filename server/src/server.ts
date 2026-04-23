@@ -3,6 +3,9 @@ import express from 'express'
 import { loggingHandler } from './middleware/loggingHandler'
 import { routeNotFound } from './middleware/notFound'
 import membersRoutes from './routes/members.routes'
+import plansRoutes from './routes/plan.routes'
+import checkInRoutes from './routes/checkIns.routes'
+import membershipsRoutes from './routes/memberships.routes'
 import { SERVER_HOSTNAME, SERVER_PORT } from './config/config'
 import * as logging from './config/logging'
 
@@ -22,6 +25,11 @@ export const Main = () => {
         return res.status(200).json({ status: 'ok' });
     })
 
+    router.use('/api/members', membersRoutes);
+    router.use('/api/plans', plansRoutes);
+    router.use('/api/check-ins', checkInRoutes);
+    router.use('/api/memberships', membershipsRoutes);
+
     logging.info('Define Controller Routing')
     router.use(routeNotFound)
 
@@ -30,8 +38,6 @@ export const Main = () => {
     httpServer.listen(process.env.PORT || 3000, () => {
         logging.info('Server is running on port' + SERVER_HOSTNAME + ':' + SERVER_PORT);
     });
-    router.use('/api/members', membersRoutes);
-
 }
 
 export const Shutdown = (callback: any) => httpServer && httpServer.close(callback);

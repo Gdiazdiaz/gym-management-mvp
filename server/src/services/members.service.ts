@@ -1,6 +1,5 @@
-import { count } from 'node:console';
 import { db } from '../db/knex';
-import { errorHandler } from '../middleware/errorHandler';
+import { AppError } from '../middleware/errorHandler';
 
 export async function createMember(input: {
     first_name: string;
@@ -13,7 +12,7 @@ export async function createMember(input: {
         return newMember;
     } catch (error: any) {
         if (error.code === '23505') {
-            throw new Error('A member with this email already exists.');
+            throw new AppError(400, 'A member with this email already exists.');
     }
     throw error;
     }
@@ -35,7 +34,7 @@ export async function searchMembers(query?: string) {
 export async function getMemberSummary(memberId: number) {
     const member = await db('members').where({ id: memberId }).first();
     if (!member) {
-        throw new Error('Member not found');
+        throw new AppError(404, 'Member not found');
     }
 
     const activeMembership = await db('memberships as m').join('plans as p', 'm.plan_id', 'p.id').where('m.member_id', memberId).where('m.status', 'active').select(
@@ -54,7 +53,7 @@ export async function getMemberSummary(memberId: number) {
     return {
         member,
         active_membership: activeMembership || null,
-        last_check_in: lastCheckIn?.check_in_time || null,
-        check_in_last_30_days: Number(countResult?.count || 0),
+        last_check_in_time: lastCheckIn?.check_in_time || null,
+        check_ins_last_30_days: Number(countResult?.count || 0),
     };
 }

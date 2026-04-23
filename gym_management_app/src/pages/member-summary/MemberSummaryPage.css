@@ -1,0 +1,49 @@
+.email {
+    text-align: center;
+}
+
+.plan-select {
+    padding: 4px 8px;
+    font-size: 15px;
+    line-height: 135%;
+    background: var(--code-bg);
+    color: var(--text-h);
+    border-radius: 4px;
+    border: none;
+}
+
+.date-input {
+    padding: 4px 8px;
+    font-size: 15px;
+    line-height: 135%;
+    background: var(--code-bg);
+    color: var(--text-h);
+    border-radius: 4px;
+    border: none;
+}
+
+.assign-btn, .cancel-btn, .check-in-btn {
+    padding: 8px 16px;
+    font-size: 15px;
+    line-height: 135%;
+    background: var(--accent);
+    color: var(--text-h);
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
+
+.membership-container, .check-ins-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1vh;
+    border: 1px solid var(--accent);
+    padding: 12px;
+    margin-bottom: 16px;
+
+}
+
+.check-ins {
+    color: var(--accent);
+}
