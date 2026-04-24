@@ -1,6 +1,7 @@
 # GYM MANGEMENT APP
 
 An MVP to manage gym members, membership plans, check ins.
+[Video link](https://drive.google.com/file/d/1nME16qtwS1EWdkqIEdi3oXE_ysZeJtx1/view?usp=sharing)
 
 - **Backedn:** Node.js, Express. TypesScript, Knex, Postgres
 - **Fronten** React, Vite, TypeScript
