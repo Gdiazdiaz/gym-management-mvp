@@ -4,7 +4,7 @@ import { api } from '../../api/instance';
 
 export default function NewMemberPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone_number: '' });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -15,7 +15,7 @@ export default function NewMemberPage() {
     try {
       const { data } = await api.post('/members', {
         ...form,
-        phone: form.phone || undefined,
+        phone_number: form.phone_number || undefined,
       });
       navigate(`/members/${data.id}`);
     } catch (err: any) {
@@ -45,7 +45,7 @@ export default function NewMemberPage() {
         {field('First name', 'first_name')}
         {field('Last name', 'last_name')}
         {field('Email', 'email', 'email')}
-        {field('Phone (optional)', 'phone', 'text', false)}
+        {field('Phone (optional)', 'phone_number', 'text', false)}
         {error && <p style={{ color: 'crimson' }}>{error}</p>}
         <button type="submit" disabled={submitting} style={{ padding: 10 }}>
           {submitting ? 'Creating…' : 'Create member'}
