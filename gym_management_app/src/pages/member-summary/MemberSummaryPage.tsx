@@ -4,6 +4,28 @@ import { api } from '../../api/instance';
 import type { MemberSummary, Plan } from '../../api/types';
 import './MemberSummaryPage.css';
 
+const toISODate = (d: Date) => d.toISOString().slice(0, 10);
+
+const yesterdayISO = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return toISODate(d);
+};
+
+const oneYearFromNowISO = () => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  return toISODate(d);
+};
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+
 export default function MemberSummaryPage() {
   const { id } = useParams<{ id: string }>();
   const memberId = Number(id);
@@ -14,7 +36,7 @@ export default function MemberSummaryPage() {
   const [busy, setBusy] = useState(false);
 
   const [planId, setPlanId] = useState<number | ''>('');
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState(yesterdayISO());
 
   const load = async () => {
     const [s, p] = await Promise.all([
@@ -31,6 +53,17 @@ export default function MemberSummaryPage() {
   const assign = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!planId) return;
+
+    if (startDate < yesterdayISO()) {
+      setError('Start date cannot be more than 1 day in the past.');
+      return;
+    }
+    if (startDate > oneYearFromNowISO()) {
+      setError('Start date cannot be more than 1 year in the future.');
+      return;
+    }
+
+
     setBusy(true); setError(null);
     try {
       await api.post('/memberships', {
@@ -89,7 +122,7 @@ export default function MemberSummaryPage() {
       {am ? (
         <div className='membership-container'>
           <p><strong>Plan:</strong> {am.plan_name} (${am.plan_price})</p>
-          <p><strong>Active from:</strong> {new Date(am.start_date).toLocaleDateString()} → {new Date(am.end_date).toLocaleDateString()}</p>
+          <p><strong>Active from:</strong> {formatDate(am.start_date)} → {formatDate(am.end_date)}</p>
           <button className='cancel-btn' onClick={cancel} disabled={busy}>Cancel membership</button>
         </div>
       ) : (
@@ -97,7 +130,12 @@ export default function MemberSummaryPage() {
           <p>No active membership.</p>
           <div style={{ marginBottom: 8 }}>
             <label>Plan: </label>
-            <select className='plan-select' value={planId} onChange={e => setPlanId(Number(e.target.value))} required>
+            <select
+              className='plan-select'
+              value={planId}
+              onChange={e => setPlanId(Number(e.target.value))}
+              required
+            >
               <option value="">Select a plan…</option>
               {plans.map(p => (
                 <option key={p.id} value={p.id}>{p.name} — ${p.price} ({p.duration_days}d)</option>
@@ -107,9 +145,11 @@ export default function MemberSummaryPage() {
           <div style={{ marginBottom: 8 }}>
             <label>Start date: </label>
             <input
-            className='date-input'
+              className='date-input'
               type="date"
               value={startDate}
+              min={yesterdayISO()}
+              max={oneYearFromNowISO()}
               onChange={e => setStartDate(e.target.value)}
               required
             />
@@ -120,16 +160,22 @@ export default function MemberSummaryPage() {
 
       <h2>Check-ins</h2>
       <div className='check-ins-container'>
-      <p><strong>Last check-in:</strong> {summary.last_check_in_time
-        ? new Date(summary.last_check_in_time).toLocaleString()
-        : 'Never'}</p>
-      <p><strong>Check-ins in last 30 days:</strong> <span className='check-ins'>{summary.check_ins_last_30_days}</span></p>
-      <button className='check-in-btn' onClick={checkIn} disabled={busy || !am}>
-        Record check-in
-      </button>
-      {!am && <p style={{ fontSize: 12, color: '#666' }}>
-        (Requires an active membership)
-      </p>}
+        <p>
+          <strong>Last check-in:</strong>{' '}
+          {summary.last_check_in_time ? new Date(summary.last_check_in_time).toLocaleString() : 'Never'}
+        </p>
+        <p>
+          <strong>Check-ins in last 30 days:</strong>{' '}
+          <span className='check-ins'>{summary.check_ins_last_30_days ?? 0}</span>
+        </p>
+        <button className='check-in-btn' onClick={checkIn} disabled={busy || !am}>
+          Record check-in
+        </button>
+        {!am && (
+          <p style={{ fontSize: 12, color: '#666' }}>
+            (Requires an active membership)
+          </p>
+        )}
       </div>
     </div>
   );

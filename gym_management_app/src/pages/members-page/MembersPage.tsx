@@ -34,6 +34,7 @@ export default function MemebersPage() {
 
 <form onSubmit={onSearch} style={{ marginBottom: 16 }}>
         <input
+        className='search-input'
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Search by name or email"

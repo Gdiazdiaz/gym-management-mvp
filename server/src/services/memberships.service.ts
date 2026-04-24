@@ -8,33 +8,46 @@ export async function assignMembership(input: {
 }) {
 
     return db.transaction(async (trx) => {
-        const member = await trx('members').where({id: input.member_id}).first();
-        if (!member) throw new AppError(404, 'Member not found');
+    const member = await trx('members').where({ id: input.member_id }).forUpdate().first();
+    if (!member) throw new AppError(404, 'Member not found');
 
-        const plan = await trx('plans').where({id: input.plan_id, is_active: true}).first();
-        if (!plan) throw new AppError(404, 'Plan not found');
+    const plan = await trx('plans').where({ id: input.plan_id, is_active: true }).first();
+    if (!plan) throw new AppError(404, 'Plan not found');
 
-        const start = new Date(input.start_date);
+    const start = new Date(input.start_date + 'T00:00:00Z');
     if (Number.isNaN(start.getTime())) throw new AppError(400, 'Invalid start date');
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const oneYearFromNow = new Date(today);
+    oneYearFromNow.setUTCFullYear(oneYearFromNow.getUTCFullYear() + 1);
+
+    if (start > oneYearFromNow) throw new AppError(400, 'start_date cannot be more than 1 year in the future');
+
     const end = new Date(start);
-    end.setDate(end.getDate() + plan.duration_days);
+    end.setUTCDate(end.getUTCDate() + plan.duration_days);
 
     try {
-        const [membership] = await trx('memberships').insert({
-            member_id: input.member_id,
-            plan_id: input.plan_id,
-            start_date: input.start_date,
-            end_date: end.toISOString().slice(0, 10),
-            status: 'active',
-        }).returning('*');
+        const [membership] = await trx('memberships')
+            .insert({
+                member_id: input.member_id,
+                plan_id: input.plan_id,
+                start_date: input.start_date,
+                end_date: end.toISOString().slice(0, 10),
+                status: 'active',
+            })
+            .returning('*');
         return membership;
     } catch (error: any) {
         if (error.code === '23505') {
-            throw new AppError(409, 'This member already has an active membership. Please cancel the existing one before assigning a new plan.');
+            throw new AppError(
+                409,
+                'This member already has an active membership. Please cancel the existing one before assigning a new plan.'
+            );
         }
         throw error;
     }
-    });
+});
 }
 
 export async function cancelMembership(membershipId: number) {
